@@ -112,20 +112,35 @@ const Chat = () => {
 
         <main className='main-window flex-3 pt-5 relative'>
           <div className='user-content flex flex-row space-x-2 px-5 pb-5 border-b-2 border-palette-moon border-opacity-40 w-full'>
-            <img className='h-12 w-12 rounded-full self-center' src={lovePepe} alt='profile_photo' />
-            <h3 className='selected-chat self-center font-medium text-lg'>Agurku Vagis</h3>
+            <img
+              className='h-12 w-12 rounded-full self-center'
+              src={lovePepe}
+              alt='profile_photo'
+            />
+            <h3 className='selected-chat self-center font-medium text-lg'>
+              Agurku Vagis
+            </h3>
           </div>
 
           <div className='chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud'>
-            <div className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1'>hello</div>
-            <div className='user-messages justify-self-start bg-palette-moon px-3 py-1 rounded-full my-1'>Hello, mate!</div>
-            <div className="selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1">Ok, cya mate!</div>
+            <div className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1'>
+              hello
+            </div>
+            <div className='user-messages justify-self-start bg-palette-moon px-3 py-1 rounded-full my-1'>
+              Hello, mate!
+            </div>
+            <div className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1'>
+              Ok, cya mate!
+            </div>
           </div>
-          <input
-            className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-full no-underline text-left py-1 px-2 focus:outline-none bottom-0 left-0 w-11/12 absolute m-2'
-            type='text'
-            placeholder='Type message'
-          />
+
+          <div className='flex bottom-2 absolute w-full'>
+            <input
+              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-full no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0'
+              type='text'
+              placeholder='Type message'
+            />
+          </div>
         </main>
       </div>
     </>
