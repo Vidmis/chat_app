@@ -4,7 +4,7 @@ const Login = () => {
   return (
     <>
       <div className='mt-12 focus-within:login-box w-4/5 min-w-1/2 h-80 shadow-xl flex flex-col lg:flex-row m-auto rounded-md overflow-hidden max-w-4xl'>
-        <div className='relative overflow-hidden design-content flex-2 bg-palette-sunset w-full h-full lg:flex'>
+        <div className='design-content relative overflow-hidden flex-2 bg-palette-sunset w-full h-full lg:flex'>
           <div className='w-full relative'>
             <div className='figure-1 py-10 px-24 rounded-l-full bg-palette-sunrise absolute sm:flex lg:bottom-20 -right-16 -bottom-32 transform rotate-45'></div>
             <div className='figure-2 py-10 px-24 rounded-l-full bg-palette-sunrise absolute hidden sm:flex lg:-bottom-5 right-10 -bottom-52 transform rotate-45'></div>
@@ -27,7 +27,7 @@ const Login = () => {
             type='password'
             placeholder='password'
           />
-          <span className='bg-palette-sunrise px-3 py-2 rounded-lg transform hover: text-palette-cloud mb-3 cursor-pointer'>
+          <span className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'>
             <Link to='/chat'>Login</Link>
           </span>
           <span className='bg-palette-sunset px-3 py-2 rounded-lg text-palette-cloud mb-4 cursor-pointer'>

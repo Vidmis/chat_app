@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import pepe from "../images/1kSxAdMB_400x400.jpg";
 import sadPepe from "../images/10mzovF9_400x400.jpg";
 import happyPepe from "../images/aWEW8KZ_460s.jpg";
@@ -11,11 +12,13 @@ const Chat = () => {
       <div className='content flex flex-row bg-palette-cloud h-screen text-gray-800'>
         <div className='sidebar px-5 flex-1 border-r-2 border-opacity-40 border-palette-moon'>
           <div className='user-info flex flex-row space-x-2'>
-            <img
-              src={pepe}
-              className='w-12 h-12 m-2 rounded-full self-center'
-              alt='profile_photo'
-            />
+            <Link to='/profile'>
+              <img
+                src={pepe}
+                className='w-12 h-12 m-2 rounded-full self-center'
+                alt='profile_photo'
+              />
+            </Link>
             <h2 className='user-name text-xl self-center m-2 font-medium'>
               Bette Random
             </h2>
