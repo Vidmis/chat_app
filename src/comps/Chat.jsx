@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import pepe from "../images/1kSxAdMB_400x400.jpg";
 import sadPepe from "../images/10mzovF9_400x400.jpg";
 import happyPepe from "../images/aWEW8KZ_460s.jpg";
@@ -7,6 +8,24 @@ import angryPepe from "../images/pepeangry.jpg";
 import thinkingPepe from "../images/pepethink.jpg";
 
 const Chat = () => {
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([
+    { key: 1, username: "Agurku Vagis", text: "Yo bastards!" },
+    { key: 2, username: "Bette", text: "What's up?" },
+  ]);
+
+  const submit = (e) => {
+    e.preventDefault();
+    const uniqueKey = Math.round(Date.now()/10);
+
+    setMessages([
+      ...messages,
+      { key: uniqueKey, username: "Vidmis", text: input },
+    ]);
+
+    setInput("");
+  };
+
   return (
     <>
       <div className='content flex flex-row bg-palette-cloud h-screen text-gray-800'>
@@ -126,24 +145,36 @@ const Chat = () => {
           </div>
 
           <div className='chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud'>
-            <div className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1'>
-              hello
-            </div>
-            <div className='user-messages justify-self-start bg-palette-moon px-3 py-1 rounded-full my-1'>
+            {messages.map((m) => (
+              <span
+                key={m.key}
+                className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-2xl my-1'
+              >
+                {m.text}
+              </span>
+            ))}
+
+            <span className='user-messages justify-self-start bg-palette-moon px-3 py-1 rounded-full my-1'>
               Hello, mate!
-            </div>
-            <div className='selected-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-full my-1'>
-              Ok, cya mate!
-            </div>
+            </span>
           </div>
 
-          <div className='flex bottom-2 absolute w-full'>
+          <form className='flex bottom-2 absolute w-full' onSubmit={submit}>
             <input
-              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-full no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0'
+              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-2xl no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0'
               type='text'
               placeholder='Type message'
+              name='messageInput'
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
             />
-          </div>
+            <button
+              type='submit'
+              className='rounded-2xl px-2 py-1 mr-5 bg-palette-sunrise text-palette-cloud'
+            >
+              Send
+            </button>
+          </form>
         </main>
       </div>
     </>
