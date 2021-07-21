@@ -1,6 +1,54 @@
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { auth } from "../firestore/config";
 
-const Login = () => {
+const Login = ({ setUserLogin }) => {
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
+ 
+  MAKE THE SIGN OUT BUTTON // https://youtu.be/UDMXXwH7uiA?t=745
+
+
+  const history = useHistory();
+  // const [loginError, setLoginError] = useState("");
+
+  const signUp = (e) => {
+    e.preventDefault();
+
+    auth
+      .createUserWithEmailAndPassword(
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+      .then((user) => {
+        if (user) {
+          console.log(user);
+          history.push("/chat");
+        }
+      })
+      .catch((err) => {
+        // setLoginError(err)
+        console.log(err);
+      });
+  };
+
+  const login = (e) => {
+    e.preventDefault();
+
+    auth
+      .signInWithEmailAndPassword(
+        emailRef.current.value,
+        passwordRef.current.value
+      )
+      .then((user) => {
+        if (user) {
+          console.log(user);
+          history.push("/chat");
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <>
       <div className='mt-12 focus-within:login-box w-4/5 min-w-1/2 h-80 shadow-xl flex flex-col lg:flex-row m-auto rounded-md overflow-hidden max-w-4xl'>
@@ -21,16 +69,25 @@ const Login = () => {
             className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
             type='text'
             placeholder='user@email.com'
+            ref={emailRef}
           />
           <input
             className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 my-5 focus:outline-none focus:text-gray-600'
             type='password'
             placeholder='password'
+            ref={passwordRef}
           />
-          <span className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'>
-            <Link to='/chat'>Login</Link>
+          <span
+            className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'
+            onClick={login}
+          >
+            {/* <Link to='/chat'>Login</Link> */}
+            Login
           </span>
-          <span className='bg-palette-sunset px-3 py-2 rounded-lg text-palette-cloud mb-4 cursor-pointer'>
+          <span
+            className='bg-palette-sunset px-3 py-2 rounded-lg text-palette-cloud mb-4 cursor-pointer'
+            onClick={signUp}
+          >
             Create account
           </span>
         </form>

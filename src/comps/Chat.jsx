@@ -7,39 +7,39 @@ const Chat = () => {
   const [selectedChat, setSelectedChat] = useState("");
   const [messages, setMessages] = useState([{text: ''}]);
   const { data, isPending } = useFetch(
-    "https://api.jsonbin.io/b/60f7366f99892a4ae9a6b026/"
+    "https://api.jsonbin.io/b/60f7366f99892a4ae9a6b026/1"
   );
 
-  if (data) {
-    const someData = data.users;
-    fetch("https://api.jsonbin.io/b/60f7366f99892a4ae9a6b026/", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "secret-key":
-          "$2b$10$6EJmnPE5i2hVJdX/UR/rRe.mwWL416ML/DgiIeS4QUVCNtQLp7NG.",
-        versioning: false,
-      },
-      body: JSON.stringify({
-        users: [
-          ...someData,
-          {
-            id: 6,
-            firstName: "Vidmis",
-            lastName: "G",
-            profilePhoto:
-              "https://i.kym-cdn.com/photos/images/newsfeed/002/130/626/591.png",
-            messages: messages,
-          },
-        ],
-      }),
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((data) => console.log(data))
-      .catch((error) => console.log(error));
-  }
+  // if (data) {
+  //   const someData = data.users;
+  //   fetch("https://api.jsonbin.io/b/60f7366f99892a4ae9a6b026/", {
+  //     method: "PUT",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       "secret-key":
+  //         "$2b$10$6EJmnPE5i2hVJdX/UR/rRe.mwWL416ML/DgiIeS4QUVCNtQLp7NG.",
+  //       versioning: false,
+  //     },
+  //     body: JSON.stringify({
+  //       users: [
+  //         ...someData,
+  //         {
+  //           id: 6,
+  //           firstName: "Vidmis",
+  //           lastName: "G",
+  //           profilePhoto:
+  //             "https://i.kym-cdn.com/photos/images/newsfeed/002/130/626/591.png",
+  //           messages: messages,
+  //         },
+  //       ],
+  //     }),
+  //   })
+  //     .then((res) => {
+  //       return res.json();
+  //     })
+  //     .then((data) => console.log(data))
+  //     .catch((error) => console.log(error));
+  // }
 
   const photo = () => {
     let photoUrl;
