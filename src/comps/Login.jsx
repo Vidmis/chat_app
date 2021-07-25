@@ -1,57 +1,35 @@
 import { useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { auth } from "../firestore/config";
+import { useAuth } from "./contexts/AuthContext";
 
-const Login = ({ setUserLogin }) => {
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
- 
-  MAKE THE SIGN OUT BUTTON // https://youtu.be/UDMXXwH7uiA?t=745
-
-
+const Signup = () => {
+  const emailRef = useRef();
+  const passwordRef = useRef();
+  const { login } = useAuth();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const history = useHistory();
-  // const [loginError, setLoginError] = useState("");
+  const {currentUser} = useAuth();
 
-  const signUp = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
-    auth
-      .createUserWithEmailAndPassword(
-        emailRef.current.value,
-        passwordRef.current.value
-      )
-      .then((user) => {
-        if (user) {
-          console.log(user);
-          history.push("/chat");
-        }
-      })
-      .catch((err) => {
-        // setLoginError(err)
-        console.log(err);
-      });
-  };
+    try {
+      setError("");
+      setLoading(true);
+      await login(emailRef.current.value, passwordRef.current.value);
+      console.log(currentUser);
+      history.push('/');
+    } catch {
+      setError("Failed to login.");
+    }
 
-  const login = (e) => {
-    e.preventDefault();
-
-    auth
-      .signInWithEmailAndPassword(
-        emailRef.current.value,
-        passwordRef.current.value
-      )
-      .then((user) => {
-        if (user) {
-          console.log(user);
-          history.push("/chat");
-        }
-      })
-      .catch((err) => console.log(err));
+    setLoading(false);
   };
 
   return (
     <>
-      <div className='mt-12 focus-within:login-box w-4/5 min-w-1/2 h-80 shadow-xl flex flex-col lg:flex-row m-auto rounded-md overflow-hidden max-w-4xl'>
+      <div className='mt-12 focus-within:login-box w-4/5 min-w-1/2 h-96 shadow-xl flex flex-col lg:flex-row m-auto rounded-md overflow-hidden max-w-4xl'>
         <div className='design-content relative overflow-hidden flex-2 bg-palette-sunset w-full h-full lg:flex'>
           <div className='w-full relative'>
             <div className='figure-1 py-10 px-24 rounded-l-full bg-palette-sunrise absolute sm:flex lg:bottom-20 -right-16 -bottom-32 transform rotate-45'></div>
@@ -64,31 +42,35 @@ const Login = ({ setUserLogin }) => {
             Chat App
           </h1>
         </div>
-        <form className='login-content flex flex-3 flex-col justify-center items-center bg-palette-cloud'>
+        <form
+          className='login-content flex flex-3 flex-col justify-center items-center bg-palette-cloud'
+          onSubmit={handleSubmit}
+        >
           <input
-            className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
+            className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 my-2 focus:outline-nonefocus:text-gray-600'
             type='text'
             placeholder='user@email.com'
             ref={emailRef}
           />
           <input
-            className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 my-5 focus:outline-none focus:text-gray-600'
+            className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 my-4 focus:outline-none focus:text-gray-600 ${
+              error ? "ring-2 ring-palette-red" : ""
+            }`}
             type='password'
             placeholder='password'
             ref={passwordRef}
           />
-          <span
-            className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'
-            onClick={login}
-          >
-            {/* <Link to='/chat'>Login</Link> */}
-            Login
-          </span>
-          <span
-            className='bg-palette-sunset px-3 py-2 rounded-lg text-palette-cloud mb-4 cursor-pointer'
-            onClick={signUp}
-          >
-            Create account
+          <span className='flex flex-col-reverse'>
+            <button
+              className='bg-palette-sunrise px-3 py-2 order-1 rounded-lg text-palette-cloud my-3 cursor-pointer self-center hover:bg-yellow-300 transition ease-in-out duration-300' 
+              type='submit'
+              disabled={loading}
+            >
+              Login
+            </button>
+            <Link to='/signup' className='text-gray-500 my-2 hover:text-palette-teal transition ease-in-out duration-300'>
+              Don't have an account? Create it!
+            </Link>
           </span>
         </form>
       </div>
@@ -96,4 +78,4 @@ const Login = ({ setUserLogin }) => {
   );
 };
 
-export default Login;
+export default Signup;

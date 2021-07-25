@@ -1,47 +1,28 @@
-import { BrowserRouter as Router, Switch, Route, useHistory } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Chat from "./comps/Chat";
 import Login from "./comps/Login";
+import Signup from "./comps/Signup";
 import Profile from "./comps/Profile";
-import { auth } from "./firestore/config";
-import { useEffect, useState } from "react";
+import PrivateRoute from "./comps/PrivateRoute";
+import { AuthProvider } from "./comps/contexts/AuthContext";
 
 const App = () => {
-  // const [userLogin] = useAuthState(auth);
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((userAuth) => {
-      const user = {
-        uid: userAuth.uid,
-        email: userAuth.email,
-      };
-      if (userAuth) {
-        console.log(userAuth);
-        setUser(user);
-        console.log(user);
-      } else {
-        setUser(null);
-      }
-    });
-    return unsubscribe;
-  }, []);
-
   return (
     <Router>
       <div className='App'>
         <div className='content'>
-          <Switch>
-              <Route exact path='/'>
+          <AuthProvider>
+            <Switch>
+              <Route path='/signup'>
+                <Signup />
+              </Route>
+              <Route path='/login'>
                 <Login />
               </Route>
-              <Route path='/chat'>
-                <Chat />
-              </Route>
-
-            <Route path='/profile'>
-              <Profile />
-            </Route>
-          </Switch>
+              <PrivateRoute exact path='/' component={Chat} />
+              <PrivateRoute path='/profile' component={Profile} />
+            </Switch>
+          </AuthProvider>
         </div>
       </div>
     </Router>
