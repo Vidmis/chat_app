@@ -1,33 +1,33 @@
 import { Link, useHistory } from "react-router-dom";
-import pepe from "../images/1kSxAdMB_400x400.jpg";
 import app from "../firestore/config";
 import { useAuth } from "./contexts/AuthContext";
 import { useRef, useState } from "react";
 
-const db = app.firestore();
-
 const Profile = ({ user }) => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState("");
+  const [refresh, setRefresh] = useState(false);
+  const [usrName, setUsrName] = useState("");
   const userNameRef = useRef();
-  const emailRef = useRef();
+  const emailRef = useRef("");
   const history = useHistory();
-  const { currentUser, updateEmail } = useAuth();
-
-  const data = db.collection("chats");
-
-  console.log(currentUser.email);
+  const { currentUser, updateEmail, updatePhoto, updateName } = useAuth();
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    // const userNameVal = e.target.userName.value;
-    // const emailVal = e.target.email.value;
-    // console.log(emailVal);
 
     const promise = [];
     setLoading(true);
     setError("");
+    setRefresh(false);
 
+    // if userName field is empty do not update userName
+    if (userNameRef.current.value !== "") {
+      setUsrName(userNameRef.current.value);
+      updateName(userNameRef.current.value);
+    }
+
+    // If email doesn't exist then update
     if (emailRef.current.value !== currentUser.email) {
       promise.push(updateEmail(emailRef.current.value));
     }
@@ -42,18 +42,20 @@ const Profile = ({ user }) => {
       .finally(() => {
         setLoading(false);
       });
+  };
 
-    // Update user info in firebase
-    // const userSelect = await data.doc("QLDv9MObLTUMuVhx42WAoEkkkL23");
-    // userSelect.update({ userName: userNameVal, email: emailVal });
-    // console.log(userSelect);
+  // Upload image file to data base
+  const onFileChange = async (e) => {
+    e.preventDefault();
+    const file = e.target.files[0];
+    const storageRef = app.storage().ref();
+    const fileRef = storageRef.child(file.name);
 
-    // data.get().then((snapshot) => {
-    //   const chats = snapshot.docs.map((doc) => doc.data());
-    //   console.log("This is chats variable", chats);
+    await fileRef.put(file);
+    const fileUrl = await fileRef.getDownloadURL();
 
-    // set(chats);
-    // setIsLoading(false);
+    updatePhoto(fileUrl);
+    setRefresh(true);
   };
 
   return (
@@ -64,14 +66,31 @@ const Profile = ({ user }) => {
             className='card flex flex-col m-auto items-center'
             onSubmit={onSubmit}
           >
-            <img
-              src={pepe}
-              alt='profile_photo'
-              className='w-48 h-48 rounded-md mt-5'
-            />
+            <div className='overflow-hidden w-48 h-48 rounded-md mt-5 grid grid-rows-1 grid-cols-1'>
+              <img
+                src={currentUser.photoURL}
+                alt='profile_photo'
+                className='object-cover w-48 h-48 row-start-1 col-start-1'
+              />
+              <label>
+                <input
+                  className='opacity-0 w-48 h-48 row-start-1 col-start-1 cursor-pointer'
+                  type='file'
+                  onChange={onFileChange}
+                />
+              </label>
+              {refresh && (
+                <span className='row-start-1 col-start-1 w-48 h-48 text-palette-cloud text-center bg-gray-600 bg-opacity-90 uppercase'>
+                  <p className='mt-16'>Image Uploaded</p>
+                  <p>Click "Save" </p>
+                  <p>to refresh</p>
+                </span>
+              )}
+            </div>
             <h3 className='profile-name my-3 text-xl font-medium text-gray-600'>
-              Bette Random
+              {usrName ? usrName : currentUser.displayName}
             </h3>
+
             <input
               className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
               type='text'

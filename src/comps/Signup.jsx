@@ -1,13 +1,8 @@
 import { useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-// import { useHistory } from "react-router-dom";
-// import { auth } from "../firestore/config";
-// import db from "../firestore/config";
-// import firebase from "firebase/app";
 import { useAuth } from "./contexts/AuthContext";
 
 const Signup = () => {
-  const userNameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const passwordConfirmRef = useRef();
@@ -16,7 +11,8 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const history = useHistory();
 
-  const handleSubmit = async(e) => {
+  // Submit after user types signup info
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (passwordRef.current.value !== passwordConfirmRef.current.value) {
@@ -26,59 +22,13 @@ const Signup = () => {
       setError("");
       setLoading(true);
       await signUp(emailRef.current.value, passwordRef.current.value);
-      history.push('/');
+      history.push("/");
     } catch {
       setError("Failed to create an account");
     }
 
     setLoading(false);
   };
-
-  // const history = useHistory();
-
-  // const signUp = (e) => {
-  //   e.preventDefault();
-  //   const userName = userNameRef.current.value;
-  //   const email = emailRef.current.value;
-  //   const pass = passwordRef.current.value;
-  //   auth
-  //     .createUserWithEmailAndPassword(email, pass)
-  //     .then((data) => {
-  //       if (data) {
-  //         db.collection("chats")
-  //           .doc(data.user.uid)
-  //           .set({
-  //             userName: userName,
-  //             email: email,
-  //             profilePhoto:
-  //               "https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png",
-  //             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  //           })
-  //           .then(() => history.push("/chat"))
-  //           .catch((err) => console.log(err));
-  //       }
-  //     })
-  //     .catch((err) => {
-  //       // setLoginError(err)
-  //       console.log(err);
-  //     });
-  // };
-
-  // const login = (e) => {
-  //   e.preventDefault();
-
-  //   auth
-  //     .signInWithEmailAndPassword(
-  //       emailRef.current.value,
-  //       passwordRef.current.value
-  //     )
-  //     .then((data) => {
-  //       if (data) {
-  //         history.push("/chat");
-  //       }
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
 
   return (
     <>
@@ -102,23 +52,21 @@ const Signup = () => {
           <input
             className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
             type='text'
-            placeholder='Username'
-            ref={userNameRef}
-          />
-          <input
-            className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
-            type='text'
             placeholder='user@email.com'
             ref={emailRef}
           />
           <input
-            className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 mt-4 focus:outline-none focus:text-gray-600 ${error ? 'ring-2 ring-palette-red' : ''}`}
+            className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 mt-4 focus:outline-none focus:text-gray-600 ${
+              error ? "ring-2 ring-palette-red" : ""
+            }`}
             type='password'
             placeholder='password'
             ref={passwordRef}
           />
           <input
-            className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 my-5 focus:outline-none focus:text-gray-600 ${error ? 'ring-2 ring-palette-red' : ''}`}
+            className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 my-5 focus:outline-none focus:text-gray-600 ${
+              error ? "ring-2 ring-palette-red" : ""
+            }`}
             type='password'
             placeholder='Password Confirm'
             ref={passwordConfirmRef}
@@ -131,7 +79,10 @@ const Signup = () => {
             >
               Create account
             </button>
-            <Link to='/login' className='text-gray-500 mt-2 mb-3 hover:text-palette-teal transition ease-in-out duration-300'>
+            <Link
+              to='/login'
+              className='text-gray-500 mt-2 mb-3 hover:text-palette-teal transition ease-in-out duration-300'
+            >
               Already have an account?
             </Link>
           </span>

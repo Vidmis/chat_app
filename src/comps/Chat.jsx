@@ -1,75 +1,115 @@
 import { Link, useHistory } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import app from "../firestore/config";
-import { useCollectionData } from "react-firebase-hooks/firestore";
+import firebase from "firebase/app";
 import { useAuth } from "./contexts/AuthContext";
+import { useCollectionData } from "react-firebase-hooks/firestore";
 
 const db = app.firestore();
 
-const Chat = ({ setUser }) => {
+const Chat = () => {
+  const history = useHistory();
+  const { logout, currentUser, updatePhoto } = useAuth();
   const [input, setInput] = useState("");
   const [selectedChat, setSelectedChat] = useState("");
-  const [messages, setMessages] = useState([{ text: "" }]);
-  const history = useHistory();
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const [data, setData] = useState(null);
-  const { logout } = useAuth();
-  // const { data, isPending } = useFetch(
-  //   "https://api.jsonbin.io/b/60f7366f99892a4ae9a6b026/1"
-  // );
+  const dummy = useRef();
 
   // Initialize collection
-  const ref = db.collection("chats");
-  const query = ref.orderBy("createdAt").limit(25);
-  const [messagess] = useCollectionData(query, { idField: "id" });
+  const messagesRef = db.collection("messages");
+  const query = messagesRef.orderBy("createdAt").limit(500);
+  const [messages] = useCollectionData(query, { idField: "id" });
 
-  // ref.get().then((snapshot) => {
-  //   snapshot.docs.forEach((doc) => {
-  //     console.log(doc.data());
-  //     // setData(doc.data());
-  //   });
-  // });
-
-  console.log("This is data hook", data);
-
+  // Render sidebar of users
   const getChats = () => {
     setIsLoading(true);
-    ref.get().then((snapshot) => {
-      const chats = snapshot.docs.map((doc) => doc.data());
-      console.log("This is chats variable", chats);
-
-      setData(chats);
-      setIsLoading(false);
-    });
+    db.collection("users")
+      .get()
+      .then((snapshot) => {
+        const chats = snapshot.docs.map((doc) => doc.data());
+        setData(chats);
+        setIsLoading(false);
+      });
   };
 
+  // Add current user data to "users" collection and update data on each refresh in "Chat" page
   useEffect(() => {
-    getChats();
-  }, []);
-
-  // const photo = () => {
-  //   let photoUrl;
-  //   if (isLoading) {
-  //     console.log("Data is loading");
-  //   } else {
-  //     photoUrl = data.users[0].profilePhoto;
-  //   }
-  //   return photoUrl;
-  // };
-
-  const submit = (e) => {
-    e.preventDefault();
     const uniqueKey = Math.round(Date.now() / 10);
+    db.collection("users")
+      .doc(currentUser.uid)
+      .set({
+        id: uniqueKey,
+        uid: currentUser.uid,
+        userName: currentUser.displayName,
+        email: currentUser.email,
+        profilePhoto: currentUser.photoURL,
+      })
+      .then()
+      .catch((err) => console.log(err));
 
-    setMessages([...messages, { id: uniqueKey, text: input }]);
+    if (input) {
+      dummy.current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }
 
+    // On page refresh update current (logged in) user photo
+    updatePhoto();
+    // On page refresh call getChats function
+    getChats();
+  }, [
+    currentUser.displayName,
+    currentUser.email,
+    currentUser.photoURL,
+    currentUser.uid,
+    input,
+    updatePhoto,
+  ]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+
+    if (selectedChat && input.trim() !== "") {
+      const uniqueKey = Math.round(Date.now() / 10);
+      messagesRef
+        .add({
+          id: uniqueKey,
+          uid: currentUser.uid,
+          currentUserEmail: currentUser.email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          text: input.trim(),
+          sentTo: selectedChat.email,
+        })
+        .then
+        // dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
+        ()
+        .catch((err) => console.log(err));
+    }
+    // Scroll to chat bottom after submiting message
+    dummy.current.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
     setInput("");
   };
 
-  const handleLogOut = async() => {
+  if (messages && selectedChat) {
+    // Scroll to chat bottom after another user sent message to current user
+    dummy.current.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+      inline: "nearest",
+    });
+  }
+
+  // Logout from current user and go back to Login page
+  const handleLogOut = async () => {
     try {
       await logout();
-      history.push('/login');
+      history.push("/login");
     } catch {
       console.log("Failed to logout");
     }
@@ -77,6 +117,7 @@ const Chat = ({ setUser }) => {
 
   return (
     <>
+      {/* Wait till data is loaded and then render the chat page view */}
       {isLoading && (
         <div className='content bg-palette-cloud h-screen w-full text-gray-800 text-center'>
           <h3 className='pt-14 text-xl font-semibold'>
@@ -86,19 +127,19 @@ const Chat = ({ setUser }) => {
       )}
       {data && (
         <div className='content flex flex-row bg-palette-cloud h-screen text-gray-800'>
-          <div className='sidebar px-5 border-r-2 border-opacity-40 border-palette-moon w-284'>
+          <div className='sidebar px-5 border-r-2 border-opacity-40 border-palette-moon w-36 md:w-284'>
             {/* Loged in user top left info */}
-            <div className='user-info flex justify-between flex-row space-x-2'>
+            <div className='user-info flex md:justify-between flex-row space-x-2 w-28 md:w-full'>
               <span className='flex felx-row'>
                 <Link to='/profile'>
                   <img
-                    src='https://www.nicepng.com/png/detail/933-9332131_profile-picture-default-png.png'
-                    className='w-12 h-12 m-2 rounded-full self-center'
-                    alt='profile_photo'
+                    src={currentUser.photoURL}
+                    className='object-cover w-12 h-12 m-2 rounded-full self-center'
+                    alt='usrPhoto'
                   />
                 </Link>
-                <h2 className='user-name text-xl self-center m-2 font-medium'>
-                  Bette
+                <h2 className='user-name text-xl self-center m-2 font-medium hidden md:block'>
+                  {currentUser.displayName}
                 </h2>
               </span>
 
@@ -107,7 +148,6 @@ const Chat = ({ setUser }) => {
                 className='bg-palette-red px-3 py-2 m-3 left-2 rounded-lg text-palette-cloud mb-3 cursor-pointer self-center'
                 onClick={handleLogOut}
               >
-                {/* <Link to='/chat'>Login</Link> */}
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4'
@@ -127,73 +167,111 @@ const Chat = ({ setUser }) => {
 
             {/* SearchBox for chats/users */}
             <input
-              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-48 text-left py-1 px-2 focus:outline-none my-4 focus:text-gray-600'
+              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-full md:w-48 text-left py-1 px-2 focus:outline-none my-4 focus:text-gray-600'
               type='text'
               placeholder='Search chats'
+              onChange={e => {
+                setSearchTerm(e.target.value);
+              }}
             />
 
             {/* Left side, users sidebar */}
-            <div className='chats'>
-              <ul>
-                {data.map((chat) => (
-                  <li
-                    className='text-sm my-3'
-                    key={chat.id}
-                    onClick={() => setSelectedChat(chat)}
-                  >
-                    <div
-                      className={`flex flex-row space-x-3 transition hover:bg-palette-sunset easy-in-out cursor-pointer rounded-md p-1 ${
-                        selectedChat === chat
-                          ? "bg-palette-sunset text-palette-cloud"
-                          : ""
-                      }`}
-                    >
-                      <img
-                        className='h-10 w-10 rounded-full self-center'
-                        src={chat.profilePhoto}
-                        alt='profile_photo'
-                      />
-                      <span className='self-center'>
-                        <h4 className='font-medium'>
-                          {chat.firstName + " " + chat.lastName}
-                        </h4>
-                      </span>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            <div className='flex h-3/5 md:h-5/6'>
+              <div className='chats overflow-hidden w-full flex-grow'>
+                <ul className='overflow-y-auto h-full '>
+                  {/* Search Filter and usernames in left side bar */}
+                  {/* eslint-disable-next-line array-callback-return */}
+                  {data && data.filter((val) => {
+                    if(searchTerm === "" || val.userName.toLowerCase().includes(searchTerm.toLowerCase())) {
+                      return val;
+                    }
+                  }).map((chat) =>
+                    chat.uid !== currentUser.uid ? (
+                      <li
+                        className='text-sm my-3 font-flow grid'
+                        key={chat.id}
+                        onClick={() => setSelectedChat(chat)}
+                      >
+                        <div
+                          className={`flex flex-row space-x-3 transition hover:bg-palette-sunset easy-in-out cursor-pointer rounded-md p-1 ${
+                            selectedChat === chat
+                              ? "bg-palette-sunset text-palette-cloud"
+                              : ""
+                          }`}
+                        >
+                          <img
+                            className='object-cover h-10 w-10 rounded-full self-center'
+                            src={chat.profilePhoto}
+                            alt='usrPhoto'
+                          />
+                          <span className='self-center hidden md:block'>
+                            <h4 className='font-medium '>{chat.userName}</h4>
+                          </span>
+                        </div>
+                      </li>
+                    ) : (
+                      <span className='hidden w-0 h-0' key={chat.id}></span>
+                    )
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
 
-          <main className='main-window flex-3 pt-5 relative'>
+          {/* Main chat window with messages and messages input */}
+          <main className='main-window flex flex-col space-y-2 pt-5 w-full'>
             {/* Top bar with selected user info */}
-            <div className='user-content flex flex-row space-x-2 px-5 pb-5 border-b-2 border-palette-moon border-opacity-40 w-full'>
+            <div className='user-content flex flex-row space-x-2 pb-2 px-5 border-b-2 border-palette-moon border-opacity-40 w-full overflow-y-scroll flex-shrink-0 h-16'>
               <img
-                className='h-12 w-12 rounded-full self-center'
-                src={selectedChat.profilePhoto}
-                alt='profile_photo'
+                className='object-cover h-12 w-12 rounded-full self-center'
+                src={
+                  selectedChat
+                    ? selectedChat.profilePhoto
+                    : currentUser.photoURL
+                }
+                alt='usrPhoto'
               />
               <h3 className='selected-chat self-center font-medium text-lg'>
-                Agurku Vagis
+                {selectedChat ? selectedChat.userName : currentUser.displayName}
               </h3>
             </div>
 
             {/* Chat/messages content */}
-            <div className='chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud'>
-              {selectedChat &&
-                selectedChat.messages.map((message) => (
-                  <span className='selected-messages justify-self-start bg-palette-moon px-3 py-1 rounded-2xl my-1'>
-                    {message}
-                  </span>
-                ))}
-
-              <span className='user-messages justify-self-end bg-palette-sunset px-3 py-1 rounded-2xl my-1'>
-                Hello, mate!
-              </span>
+            <div className='overflow-hidden w-full flex-grow'>
+              <div className='overflow-y-auto h-full border-b-2 border-palette-moon border-opacity-40'>
+                <div className='text-content chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud font-flow'>
+                  {messages &&
+                    messages.map((msg) =>
+                      // Filter out messages
+                      (selectedChat.email === msg.sentTo &&
+                        currentUser.email === msg.currentUserEmail) ||
+                      (currentUser.email === msg.sentTo &&
+                        selectedChat.email === msg.currentUserEmail) ? (
+                        <span
+                          className={`selected-msg px-3 py-1 rounded-2xl my-1 ${
+                            currentUser.email === msg.sentTo &&
+                            selectedChat.email === msg.currentUserEmail
+                              ? "bg-palette-moon justify-self-start"
+                              : "bg-palette-sunset justify-self-end"
+                          }`}
+                          key={msg.id}
+                        >
+                          {msg.text}
+                        </span>
+                      ) : (
+                        <span key={msg.id} className='w-0 h-0 opacity-0'></span>
+                      )
+                    )}
+                  <span ref={dummy} className='h-10 w-10 opacity-0'></span>
+                </div>
+              </div>
             </div>
 
             {/* Input for typing and sending messages in chat */}
-            <form className='flex bottom-2 absolute w-full' onSubmit={submit}>
+            <form
+              className='flex mb-5 w-full p-3 flex-shrink-0'
+              onSubmit={handleSendMessage}
+            >
               <input
                 className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-2xl no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0'
                 type='text'

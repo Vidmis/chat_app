@@ -9,8 +9,9 @@ const Signup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const history = useHistory();
-  const {currentUser} = useAuth();
 
+
+  // Submit after user types login info
   const handleSubmit = async(e) => {
     e.preventDefault();
 
@@ -18,7 +19,6 @@ const Signup = () => {
       setError("");
       setLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
-      console.log(currentUser);
       history.push('/');
     } catch {
       setError("Failed to login.");
