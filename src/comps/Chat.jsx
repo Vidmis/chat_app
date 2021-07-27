@@ -60,14 +60,8 @@ const Chat = () => {
     updatePhoto();
     // On page refresh call getChats function
     getChats();
-  }, [
-    currentUser.displayName,
-    currentUser.email,
-    currentUser.photoURL,
-    currentUser.uid,
-    input,
-    updatePhoto,
-  ]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
