@@ -1,4 +1,6 @@
 # Chat web app
+### In order to install and run app in local machine:
+* Download app then in the console run: "npm install" and after installation: "npm start"
 
 ### Responsive only from ~ 540px
 

@@ -3,15 +3,15 @@ import app from "../firestore/config";
 import { useAuth } from "./contexts/AuthContext";
 import { useRef, useState } from "react";
 
-const Profile = ({ user }) => {
+const Profile = () => {
   const [error, setError] = useState("");
   const [isloading, setIsLoading] = useState("");
-  const [canRefresh, setCanRefresh] = useState(false);
   const [usrName, setUsrName] = useState("");
   const userNameRef = useRef();
   const emailRef = useRef("");
   const history = useHistory();
   const { currentUser, updateEmail, updatePhoto, updateName } = useAuth();
+  const [image, setImage] = useState(currentUser.photoURL);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +19,6 @@ const Profile = ({ user }) => {
     const promise = [];
     setIsLoading(true);
     setError("");
-    setCanRefresh(false);
 
     // if userName field is empty do not update userName
     if (userNameRef.current.value !== "") {
@@ -55,7 +54,7 @@ const Profile = ({ user }) => {
     const fileUrl = await fileRef.getDownloadURL();
 
     updatePhoto(fileUrl);
-    setCanRefresh(true);
+    setImage(fileUrl);
   };
 
   return (
@@ -68,7 +67,7 @@ const Profile = ({ user }) => {
           >
             <div className='overflow-hidden w-48 h-48 rounded-md mt-5 grid grid-rows-1 grid-cols-1'>
               <img
-                src={currentUser.photoURL}
+                src={image}
                 alt='profile_photo'
                 className='object-cover w-48 h-48 row-start-1 col-start-1'
               />
@@ -79,13 +78,6 @@ const Profile = ({ user }) => {
                   onChange={onFileChange}
                 />
               </label>
-              {canRefresh && (
-                <span className='row-start-1 col-start-1 w-48 h-48 text-palette-cloud text-center bg-gray-600 bg-opacity-90 uppercase'>
-                  <p className='mt-16'>Image Uploaded</p>
-                  <p>Click "Save" </p>
-                  <p>to refresh</p>
-                </span>
-              )}
             </div>
             <h3 className='profile-name my-3 text-xl font-medium text-gray-600'>
               {usrName ? usrName : currentUser.displayName}

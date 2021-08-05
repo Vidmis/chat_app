@@ -22,15 +22,6 @@ const Chat = () => {
   const query = messagesRef.orderBy("createdAt").limit(500);
   const [messages] = useCollectionData(query, { idField: "id" });
 
-  if (input) {
-    dummy.current.scrollIntoView({
-      behavior: "smooth",
-      block: "end",
-    });
-  }
-
-  console.log(input);
-
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
