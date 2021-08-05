@@ -8,7 +8,7 @@ const Signup = () => {
   const passwordConfirmRef = useRef();
   const { signUp } = useAuth();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
 
   // Submit after user types signup info
@@ -20,14 +20,14 @@ const Signup = () => {
     }
     try {
       setError("");
-      setLoading(true);
+      setIsLoading(true);
       await signUp(emailRef.current.value, passwordRef.current.value);
       history.push("/");
     } catch {
       setError("Failed to create an account");
     }
 
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
@@ -75,7 +75,7 @@ const Signup = () => {
             <button
               className='bg-palette-sunset px-3 py-2 order-2 rounded-lg text-palette-cloud mb-3 cursor-pointer self-center hover:bg-yellow-500 transition ease-in-out duration-300'
               type='submit'
-              disabled={loading}
+              disabled={isLoading}
             >
               Create account
             </button>

@@ -5,6 +5,7 @@ import Signup from "./comps/Signup";
 import Profile from "./comps/Profile";
 import PrivateRoute from "./comps/PrivateRoute";
 import { AuthProvider } from "./comps/contexts/AuthContext";
+import {pathnames} from './constants/location';
 
 const App = () => {
   return (
@@ -13,14 +14,14 @@ const App = () => {
         <div className='content'>
           <AuthProvider>
             <Switch>
-              <Route path='/signup'>
+              <Route path={pathnames.signup}>
                 <Signup />
               </Route>
-              <Route path='/login'>
+              <Route path={pathnames.login}>
                 <Login />
               </Route>
-              <PrivateRoute exact path='/' component={Chat} />
-              <PrivateRoute path='/profile' component={Profile} />
+              <PrivateRoute exact path={pathnames.home} component={Chat} />
+              <PrivateRoute path={pathnames.profile} component={Profile} />
             </Switch>
           </AuthProvider>
         </div>

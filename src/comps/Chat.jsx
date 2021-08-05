@@ -1,67 +1,35 @@
 import { Link, useHistory } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import app from "../firestore/config";
 import firebase from "firebase/app";
 import { useAuth } from "./contexts/AuthContext";
 import { useCollectionData } from "react-firebase-hooks/firestore";
+import useFetch from "../useFetch";
 
 const db = app.firestore();
 
 const Chat = () => {
   const history = useHistory();
-  const { logout, currentUser, updatePhoto } = useAuth();
+  const { logout, currentUser } = useAuth();
   const [input, setInput] = useState("");
   const [selectedChat, setSelectedChat] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [data, setData] = useState(null);
   const dummy = useRef();
+  const {data, isLoading} = useFetch();
 
   // Initialize collection
   const messagesRef = db.collection("messages");
   const query = messagesRef.orderBy("createdAt").limit(500);
   const [messages] = useCollectionData(query, { idField: "id" });
 
-  // Render sidebar of users
-  const getChats = () => {
-    setIsLoading(true);
-    db.collection("users")
-      .get()
-      .then((snapshot) => {
-        const chats = snapshot.docs.map((doc) => doc.data());
-        setData(chats);
-        setIsLoading(false);
-      });
-  };
+  if (input) {
+    dummy.current.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }
 
-  // Add current user data to "users" collection and update data on each refresh in "Chat" page
-  useEffect(() => {
-    const uniqueKey = Math.round(Date.now() / 10);
-    db.collection("users")
-      .doc(currentUser.uid)
-      .set({
-        id: uniqueKey,
-        uid: currentUser.uid,
-        userName: currentUser.displayName,
-        email: currentUser.email,
-        profilePhoto: currentUser.photoURL,
-      })
-      .then()
-      .catch((err) => console.log(err));
-
-    if (input) {
-      dummy.current.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }
-
-    // On page refresh update current (logged in) user photo
-    updatePhoto();
-    // On page refresh call getChats function
-    getChats();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  console.log(input);
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -175,7 +143,7 @@ const Chat = () => {
                 <ul className='overflow-y-auto h-full '>
                   {/* Search Filter and usernames in left side bar */}
                   {/* eslint-disable-next-line array-callback-return */}
-                  {data && data.filter((val) => {
+                  {data?.filter((val) => {
                     if(searchTerm === "" || val.userName.toLowerCase().includes(searchTerm.toLowerCase())) {
                       return val;
                     }
@@ -234,8 +202,7 @@ const Chat = () => {
             <div className='overflow-hidden w-full flex-grow'>
               <div className='overflow-y-auto h-full border-b-2 border-palette-moon border-opacity-40'>
                 <div className='text-content chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud font-flow'>
-                  {messages &&
-                    messages.map((msg) =>
+                  {messages?.map((msg) =>
                       // Filter out messages
                       (selectedChat.email === msg.sentTo &&
                         currentUser.email === msg.currentUserEmail) ||

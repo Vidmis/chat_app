@@ -7,7 +7,7 @@ const Signup = () => {
   const passwordRef = useRef();
   const { login } = useAuth();
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isloading, setIsLoading] = useState(false);
   const history = useHistory();
 
 
@@ -17,14 +17,14 @@ const Signup = () => {
 
     try {
       setError("");
-      setLoading(true);
+      setIsLoading(true);
       await login(emailRef.current.value, passwordRef.current.value);
       history.push('/');
     } catch {
       setError("Failed to login.");
     }
 
-    setLoading(false);
+    setIsLoading(false);
   };
 
   return (
@@ -64,7 +64,7 @@ const Signup = () => {
             <button
               className='bg-palette-sunrise px-3 py-2 order-1 rounded-lg text-palette-cloud my-3 cursor-pointer self-center hover:bg-yellow-300 transition ease-in-out duration-300' 
               type='submit'
-              disabled={loading}
+              disabled={isloading}
             >
               Login
             </button>

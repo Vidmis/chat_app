@@ -5,8 +5,8 @@ import { useRef, useState } from "react";
 
 const Profile = ({ user }) => {
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState("");
-  const [refresh, setRefresh] = useState(false);
+  const [isloading, setIsLoading] = useState("");
+  const [canRefresh, setCanRefresh] = useState(false);
   const [usrName, setUsrName] = useState("");
   const userNameRef = useRef();
   const emailRef = useRef("");
@@ -17,9 +17,9 @@ const Profile = ({ user }) => {
     e.preventDefault();
 
     const promise = [];
-    setLoading(true);
+    setIsLoading(true);
     setError("");
-    setRefresh(false);
+    setCanRefresh(false);
 
     // if userName field is empty do not update userName
     if (userNameRef.current.value !== "") {
@@ -40,7 +40,7 @@ const Profile = ({ user }) => {
         setError("Failed to update account");
       })
       .finally(() => {
-        setLoading(false);
+        setIsLoading(false);
       });
   };
 
@@ -55,7 +55,7 @@ const Profile = ({ user }) => {
     const fileUrl = await fileRef.getDownloadURL();
 
     updatePhoto(fileUrl);
-    setRefresh(true);
+    setCanRefresh(true);
   };
 
   return (
@@ -79,7 +79,7 @@ const Profile = ({ user }) => {
                   onChange={onFileChange}
                 />
               </label>
-              {refresh && (
+              {canRefresh && (
                 <span className='row-start-1 col-start-1 w-48 h-48 text-palette-cloud text-center bg-gray-600 bg-opacity-90 uppercase'>
                   <p className='mt-16'>Image Uploaded</p>
                   <p>Click "Save" </p>
@@ -108,7 +108,7 @@ const Profile = ({ user }) => {
             <div className='flex flex-row space-x-4 my-5'>
               <button
                 type='submit'
-                disabled={loading}
+                disabled={isloading}
                 className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'
               >
                 Save
