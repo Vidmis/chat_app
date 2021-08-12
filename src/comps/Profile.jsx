@@ -2,6 +2,7 @@ import { Link, useHistory } from "react-router-dom";
 import app from "../firestore/config";
 import { useAuth } from "./contexts/AuthContext";
 import { useRef, useState } from "react";
+import { pathnames } from "../constants/location";
 
 const Profile = () => {
   const [error, setError] = useState("");
@@ -33,7 +34,7 @@ const Profile = () => {
 
     Promise.all(promise)
       .then(() => {
-        history.push("/");
+        history.push(pathnames.home);
       })
       .catch(() => {
         setError("Failed to update account");
@@ -84,30 +85,24 @@ const Profile = () => {
             </h3>
 
             <input
-              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600'
+              className='inpt'
               type='text'
               placeholder='Name'
               ref={userNameRef}
             />
             <input
-              className={`transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 px-2 focus:outline-none mt-4 focus:text-gray-600 ${
-                error ? "ring-2 ring-palette-red" : ""
-              }`}
+              className={`inpt ${error ? "ring-2 ring-palette-red" : ""}`}
               type='text'
               placeholder='Email'
               ref={emailRef}
             />
             <div className='flex flex-row space-x-4 my-5'>
-              <button
-                type='submit'
-                disabled={isloading}
-                className='bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'
-              >
+              <button type='submit' disabled={isloading} className='btn-yellow'>
                 Save
               </button>
               <Link
-                className='bg-palette-red px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer'
-                to='/'
+                className='btn-red'
+                to={pathnames.home}
               >
                 Cancel
               </Link>

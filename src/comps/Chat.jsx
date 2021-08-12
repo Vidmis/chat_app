@@ -5,6 +5,7 @@ import firebase from "firebase/app";
 import { useAuth } from "./contexts/AuthContext";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import useFetch from "../useFetch";
+import { pathnames } from "../constants/location";
 
 const db = app.firestore();
 
@@ -13,9 +14,9 @@ const Chat = () => {
   const { logout, currentUser } = useAuth();
   const [input, setInput] = useState("");
   const [selectedChat, setSelectedChat] = useState("");
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const dummy = useRef();
-  const {data, isLoading} = useFetch();
+  const { data, isLoading } = useFetch();
 
   // Initialize collection
   const messagesRef = db.collection("messages");
@@ -62,7 +63,7 @@ const Chat = () => {
   const handleLogOut = async () => {
     try {
       await logout();
-      history.push("/login");
+      history.push(pathnames.login);
     } catch {
       console.log("Failed to logout");
     }
@@ -123,7 +124,7 @@ const Chat = () => {
               className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-full md:w-48 text-left py-1 px-2 focus:outline-none my-4 focus:text-gray-600'
               type='text'
               placeholder='Search chats'
-              onChange={e => {
+              onChange={(e) => {
                 setSearchTerm(e.target.value);
               }}
             />
@@ -134,38 +135,46 @@ const Chat = () => {
                 <ul className='overflow-y-auto h-full '>
                   {/* Search Filter and usernames in left side bar */}
                   {/* eslint-disable-next-line array-callback-return */}
-                  {data?.filter((val) => {
-                    if(searchTerm === "" || val.userName.toLowerCase().includes(searchTerm.toLowerCase())) {
-                      return val;
-                    }
-                  }).map((chat) =>
-                    chat.uid !== currentUser.uid ? (
-                      <li
-                        className='text-sm my-3 font-flow grid'
-                        key={chat.id}
-                        onClick={() => setSelectedChat(chat)}
-                      >
-                        <div
-                          className={`flex flex-row space-x-3 transition hover:bg-palette-sunset easy-in-out cursor-pointer rounded-md p-1 ${
-                            selectedChat === chat
-                              ? "bg-palette-sunset text-palette-cloud"
-                              : ""
-                          }`}
+                  {data
+                    ?.filter((val) => {
+                      if (
+                        searchTerm === "" ||
+                        val.userName
+                          .toLowerCase()
+                          .includes(searchTerm.toLowerCase())
+                      ) {
+                        return val;
+                      }
+                      return null;
+                    })
+                    .map((chat) =>
+                      chat.uid !== currentUser.uid ? (
+                        <li
+                          className='text-sm my-3 font-flow grid'
+                          key={chat.id}
+                          onClick={() => setSelectedChat(chat)}
                         >
-                          <img
-                            className='object-cover h-10 w-10 rounded-full self-center'
-                            src={chat.profilePhoto}
-                            alt='usrPhoto'
-                          />
-                          <span className='self-center hidden md:block'>
-                            <h4 className='font-medium '>{chat.userName}</h4>
-                          </span>
-                        </div>
-                      </li>
-                    ) : (
-                      <span className='hidden w-0 h-0' key={chat.id}></span>
-                    )
-                  )}
+                          <div
+                            className={`flex flex-row space-x-3 transition hover:bg-palette-sunset easy-in-out cursor-pointer rounded-md p-1 ${
+                              selectedChat === chat
+                                ? "bg-palette-sunset text-palette-cloud"
+                                : ""
+                            }`}
+                          >
+                            <img
+                              className='object-cover h-10 w-10 rounded-full self-center'
+                              src={chat.profilePhoto}
+                              alt='usrPhoto'
+                            />
+                            <span className='self-center hidden md:block'>
+                              <h4 className='font-medium '>{chat.userName}</h4>
+                            </span>
+                          </div>
+                        </li>
+                      ) : (
+                        <span className='hidden w-0 h-0' key={chat.id}></span>
+                      )
+                    )}
                 </ul>
               </div>
             </div>
@@ -194,26 +203,26 @@ const Chat = () => {
               <div className='overflow-y-auto h-full border-b-2 border-palette-moon border-opacity-40'>
                 <div className='text-content chat-window mx-5 mt-5 grid justify-items-stretch text-palette-cloud font-flow'>
                   {messages?.map((msg) =>
-                      // Filter out messages
-                      (selectedChat.email === msg.sentTo &&
-                        currentUser.email === msg.currentUserEmail) ||
-                      (currentUser.email === msg.sentTo &&
-                        selectedChat.email === msg.currentUserEmail) ? (
-                        <span
-                          className={`selected-msg px-3 py-1 rounded-2xl my-1 ${
-                            currentUser.email === msg.sentTo &&
-                            selectedChat.email === msg.currentUserEmail
-                              ? "bg-palette-moon justify-self-start"
-                              : "bg-palette-sunset justify-self-end"
-                          }`}
-                          key={msg.id}
-                        >
-                          {msg.text}
-                        </span>
-                      ) : (
-                        <span key={msg.id} className='w-0 h-0 opacity-0'></span>
-                      )
-                    )}
+                    // Filter out messages
+                    (selectedChat.email === msg.sentTo &&
+                      currentUser.email === msg.currentUserEmail) ||
+                    (currentUser.email === msg.sentTo &&
+                      selectedChat.email === msg.currentUserEmail) ? (
+                      <span
+                        className={`selected-msg px-3 py-1 rounded-2xl my-1 ${
+                          currentUser.email === msg.sentTo &&
+                          selectedChat.email === msg.currentUserEmail
+                            ? "bg-palette-moon justify-self-start"
+                            : "bg-palette-sunset justify-self-end"
+                        }`}
+                        key={msg.id}
+                      >
+                        {msg.text}
+                      </span>
+                    ) : (
+                      <span key={msg.id} className='w-0 h-0 opacity-0'></span>
+                    )
+                  )}
                   <span ref={dummy} className='h-10 w-10 opacity-0'></span>
                 </div>
               </div>

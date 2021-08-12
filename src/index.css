@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.inpt {
+    @apply transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 my-2 focus:outline-none focus:text-gray-600;
+}
+
+.btn-yellow {
+    @apply bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud cursor-pointer self-center hover:bg-yellow-300 transition ease-in-out duration-300;
+}
+
+.btn-orange {
+    @apply bg-palette-sunset px-3 py-2 rounded-lg text-palette-cloud mb-3 cursor-pointer self-center hover:bg-yellow-500 transition ease-in-out duration-300;
+}
+
+.btn-red {
+    @apply bg-palette-red px-3 py-2 rounded-lg text-palette-cloud cursor-pointer self-center hover:bg-red-400 transition ease-in-out duration-300;
+}
+
+.txt-hvr {
+    @apply text-gray-500 mt-2 mb-3 hover:text-palette-teal transition ease-in-out duration-300;
+}
