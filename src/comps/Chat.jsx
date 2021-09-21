@@ -1,5 +1,5 @@
 import { Link, useHistory } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import app from "../firestore/config";
 import firebase from "firebase/app";
 import { useAuth } from "./contexts/AuthContext";
@@ -17,10 +17,17 @@ const Chat = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const dummy = useRef();
   const { data, isLoading } = useFetch();
+  const [background, setBackground] = useState("");
 
-  // Initialize collection
+  console.log(data);
+
+  // Initialize users collection
+  const usersRef = db.collection("users");
+  console.log(usersRef.doc(currentUser.uid));
+
+  // Initialize messages collection
   const messagesRef = db.collection("messages");
-  const query = messagesRef.orderBy("createdAt").limit(500);
+  const query = messagesRef.orderBy("createdAt").limit(1000);
   const [messages] = useCollectionData(query, { idField: "id" });
 
   const handleSendMessage = async (e) => {
@@ -31,11 +38,12 @@ const Chat = () => {
       messagesRef
         .add({
           id: uniqueKey,
-          uid: currentUser.uid,
-          currentUserEmail: currentUser.email,
+          senderId: currentUser.uid,
+          sender: currentUser.email,
           createdAt: firebase.firestore.FieldValue.serverTimestamp(),
           text: input.trim(),
           sentTo: selectedChat.email,
+          hasRead: false,
         })
         .then
         // dummy.current.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" })
@@ -50,8 +58,30 @@ const Chat = () => {
     setInput("");
   };
 
+  useEffect(() => {
+    messagesRef.get().then((snap) => {
+      snap.docs.forEach((doc, index) => {
+        console.log("Index is ", index);
+        const msg = doc.data();
+
+        if (
+          msg.sentTo === currentUser.email &&
+          !msg.hasRead &&
+          selectedChat.email === msg.sender
+        ) {
+          messagesRef.doc(doc.id).update({ hasRead: true });
+        }
+      });
+    });
+  }, [currentUser.email, messagesRef, selectedChat.email]);
+
+  // Set selected chat
+  const onChatSelect = (usr) => {
+    setSelectedChat(usr);
+  };
+
+  // Scroll to chat bottom after another user sent message to current user
   if (messages && selectedChat) {
-    // Scroll to chat bottom after another user sent message to current user
     dummy.current.scrollIntoView({
       behavior: "smooth",
       block: "end",
@@ -98,10 +128,7 @@ const Chat = () => {
               </span>
 
               {/* Sign out button */}
-              <span
-                className='bg-palette-red px-3 py-2 m-3 left-2 rounded-lg text-palette-cloud mb-3 cursor-pointer self-center'
-                onClick={handleLogOut}
-              >
+              <span className='btn-red' onClick={handleLogOut}>
                 <svg
                   xmlns='http://www.w3.org/2000/svg'
                   className='h-4 w-4'
@@ -121,7 +148,7 @@ const Chat = () => {
 
             {/* SearchBox for chats/users */}
             <input
-              className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-full md:w-48 text-left py-1 px-2 focus:outline-none my-4 focus:text-gray-600'
+              className='inpt'
               type='text'
               placeholder='Search chats'
               onChange={(e) => {
@@ -150,13 +177,17 @@ const Chat = () => {
                     .map((chat) =>
                       chat.uid !== currentUser.uid ? (
                         <li
-                          className='text-sm my-3 font-flow grid'
+                          className={`text-sm my-3 font-flow grid rounded-md ${
+                             chat.email === "vidmis@gmail.com"
+                              ? "bg-palette-sunset text-palette-cloud"
+                              : ""
+                          }`}
                           key={chat.id}
-                          onClick={() => setSelectedChat(chat)}
+                          onClick={() => onChatSelect(chat)}
                         >
                           <div
                             className={`flex flex-row space-x-3 transition hover:bg-palette-sunset easy-in-out cursor-pointer rounded-md p-1 ${
-                              selectedChat === chat
+                              selectedChat.uid === chat.uid
                                 ? "bg-palette-sunset text-palette-cloud"
                                 : ""
                             }`}
@@ -205,13 +236,13 @@ const Chat = () => {
                   {messages?.map((msg) =>
                     // Filter out messages
                     (selectedChat.email === msg.sentTo &&
-                      currentUser.email === msg.currentUserEmail) ||
+                      currentUser.email === msg.sender) ||
                     (currentUser.email === msg.sentTo &&
-                      selectedChat.email === msg.currentUserEmail) ? (
+                      selectedChat.email === msg.sender) ? (
                       <span
                         className={`selected-msg px-3 py-1 rounded-2xl my-1 ${
                           currentUser.email === msg.sentTo &&
-                          selectedChat.email === msg.currentUserEmail
+                          selectedChat.email === msg.sender
                             ? "bg-palette-moon justify-self-start"
                             : "bg-palette-sunset justify-self-end"
                         }`}
@@ -234,7 +265,7 @@ const Chat = () => {
               onSubmit={handleSendMessage}
             >
               <input
-                className='transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-2xl no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0'
+                className='inpt-chat'
                 type='text'
                 placeholder='Type message'
                 name='messageInput'

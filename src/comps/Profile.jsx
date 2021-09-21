@@ -100,10 +100,7 @@ const Profile = () => {
               <button type='submit' disabled={isloading} className='btn-yellow'>
                 Save
               </button>
-              <Link
-                className='btn-red'
-                to={pathnames.home}
-              >
+              <Link className='btn-red' to={pathnames.home}>
                 Cancel
               </Link>
             </div>

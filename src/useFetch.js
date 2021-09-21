@@ -26,7 +26,7 @@ const useFetch = () => {
     const uniqueKey = Math.round(Date.now() / 10);
     db.collection("users")
       .doc(currentUser.uid)
-      .set({
+      .update({
         id: uniqueKey,
         uid: currentUser.uid,
         userName: currentUser.displayName,

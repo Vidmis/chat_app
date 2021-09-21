@@ -12,8 +12,6 @@ const SignInLayout = ({ currentPathLogin, currentPathSignUp }) => {
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
 
-  console.log(currentPathLogin)
-
   // Submit after user types login info
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -6,6 +6,9 @@
 .inpt {
     @apply transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon rounded-md no-underline w-3/5 min-w-32 text-center py-1 my-2 focus:outline-none focus:text-gray-600;
 }
+.inpt-chat {
+    @apply transition duration-150 ease-in-out font-medium focus:shadow-md focus:ring-2 focus:ring-palette-teal text-palette-moon focus:text-gray-600 rounded-2xl no-underline text-left py-1 px-3 focus:outline-none mx-5 flex-1 min-w-0;
+}
 
 .btn-yellow {
     @apply bg-palette-sunrise px-3 py-2 rounded-lg text-palette-cloud cursor-pointer self-center hover:bg-yellow-300 transition ease-in-out duration-300;
