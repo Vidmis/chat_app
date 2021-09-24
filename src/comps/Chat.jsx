@@ -17,8 +17,6 @@ const Chat = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const dummy = useRef();
   const { data, isLoading } = useFetch();
-  const [background, setBackground] = useState("");
-  const [hasSent, setHasSent] = useState([]);
 
   // Initialize messages collection
   const messagesRef = db.collection("messages");
@@ -67,18 +65,17 @@ const Chat = () => {
         }
       });
 
-      setHasSent();
     });
 
-    setHasSent();
   }, [currentUser.email, messagesRef, selectedChat.email]);
 
   // Show popup when user sends new message
   const handlePopup = (chatUsr) => {
     return messages?.some(({ sentTo, sender, hasRead }) => {
       if (currentUser.email === sentTo && chatUsr === sender && !hasRead) {
-        return "New message";
+        return true;
       }
+      return false;
     });
   };
 
