@@ -18,12 +18,7 @@ const Chat = () => {
   const dummy = useRef();
   const { data, isLoading } = useFetch();
   const [background, setBackground] = useState("");
-
-  console.log(data);
-
-  // Initialize users collection
-  const usersRef = db.collection("users");
-  console.log(usersRef.doc(currentUser.uid));
+  const [hasSent, setHasSent] = useState([]);
 
   // Initialize messages collection
   const messagesRef = db.collection("messages");
@@ -61,7 +56,6 @@ const Chat = () => {
   useEffect(() => {
     messagesRef.get().then((snap) => {
       snap.docs.forEach((doc, index) => {
-        console.log("Index is ", index);
         const msg = doc.data();
 
         if (
@@ -72,8 +66,22 @@ const Chat = () => {
           messagesRef.doc(doc.id).update({ hasRead: true });
         }
       });
+
+      setHasSent();
     });
+
+    setHasSent();
   }, [currentUser.email, messagesRef, selectedChat.email]);
+
+  // Show popup when user sends new message
+  const handlePopup = (chatUsr) => {
+    return messages?.some(({ sentTo, sender, hasRead }) => {
+      if (currentUser.email === sentTo && chatUsr === sender && !hasRead) {
+        return "New message";
+      }
+    });
+  };
+
 
   // Set selected chat
   const onChatSelect = (usr) => {
@@ -177,11 +185,7 @@ const Chat = () => {
                     .map((chat) =>
                       chat.uid !== currentUser.uid ? (
                         <li
-                          className={`text-sm my-3 font-flow grid rounded-md ${
-                             chat.email === "vidmis@gmail.com"
-                              ? "bg-palette-sunset text-palette-cloud"
-                              : ""
-                          }`}
+                          className={`text-sm my-3 font-flow grid rounded-md`}
                           key={chat.id}
                           onClick={() => onChatSelect(chat)}
                         >
@@ -190,7 +194,13 @@ const Chat = () => {
                               selectedChat.uid === chat.uid
                                 ? "bg-palette-sunset text-palette-cloud"
                                 : ""
-                            }`}
+                            }
+                            ${
+                              handlePopup(chat.email)
+                                ? "bg-palette-sunrise text-palette-cloud"
+                                : ""
+                            }
+                            `}
                           >
                             <img
                               className='object-cover h-10 w-10 rounded-full self-center'
